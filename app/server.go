@@ -55,6 +55,32 @@ func handleConnection(conn net.Conn) {
 		}
 	} else if method == "GET" && pathA == "echo" && pathB != "" {
 		conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(pathB), pathB)))
+	} else if method == "GET" && pathA == "files" && pathB != "" {
+		workingDir, err := os.Getwd()
+		if err != nil {
+			fmt.Println("Error getting working directory:", err)
+			return
+		}
+		filePath := workingDir + string(os.PathSeparator) + pathB
+		file, err := os.Open(filePath)
+		if err != nil {
+			fmt.Println("Error opening file:", err)
+			return
+		}
+		defer file.Close()
+		stat, err := file.Stat()
+		if err != nil {
+			fmt.Println("Error getting file info:", err)
+			return
+		}
+		data := make([]byte, stat.Size())
+		_, err = file.Read(data)
+		if err != nil {
+			fmt.Println("Error reading file:", err)
+			return
+		}
+
+		conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: %d\r\n\r\n%s", stat.Size(), string(data))))
 	} else {
 		conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
 	}
