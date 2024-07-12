@@ -40,7 +40,7 @@ func handleConnection(conn net.Conn) {
 	req := make([]byte, 1024)
 	conn.Read(req)
 	request := string(req)
-	method, path, headers, _ := parseRequest(string(request))
+	method, path, headers, body := parseRequest(string(request))
 	paths := parsePath(path)
 	var pathA, pathB string
 	pathA = paths[1]
@@ -65,13 +65,13 @@ func handleConnection(conn net.Conn) {
 			conn.Write([]byte("HTTP/1.1 405 Not Allowed\r\n\r\n"))
 			return
 		}
-		file, err := os.Create(filePath)
+		content := []byte(body)
+		err := os.WriteFile(filePath, content, 0644)
 		if err != nil {
-			fmt.Println("Error creating file:", err)
+			fmt.Println("Error writing to file:", err)
 			conn.Write([]byte("HTTP/1.1 500 Internal Server Error\r\n\r\n"))
 			return
 		}
-		defer file.Close()
 		conn.Write([]byte("HTTP/1.1 201 Created\r\n\r\n"))
 
 	} else if method == "GET" && pathA == "files" && pathB != "" {
