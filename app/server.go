@@ -4,12 +4,18 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 )
 
-func parseRequest(request string)(string,string){
+func parseRequest(request string) (string, string) {
 	var method, path string
 	fmt.Sscanf(request, "%s %s HTTP/1.1", &method, &path)
 	return method, path
+}
+
+func parsePath(path string) []string {
+	return strings.Split(path, "/")
+
 }
 
 func main() {
@@ -29,11 +35,18 @@ func main() {
 	req := make([]byte, 1024)
 	conn.Read(req)
 	method, path := parseRequest(string(req))
-	fmt.Println("Method:", method)
-	fmt.Println("Path:", path)
+	paths := parsePath(path)
+	var pathA, pathB string
+	pathA = paths[1]
+	if len(paths) > 2 {
+		pathB = paths[2]
+	}
 
 	if method == "GET" && path == "/" {
 		conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
+	} else if method == "GET" && pathA == "echo" && pathB != "" {
+		fmt.Println(pathB)
+		conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Length: %d\r\n\r\n%s", len(pathB), pathB)))
 	} else {
 		conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
 	}
