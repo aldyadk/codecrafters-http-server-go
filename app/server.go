@@ -59,7 +59,7 @@ func handleConnection(conn net.Conn) {
 	} else if method == "GET" && pathA == "echo" && pathB != "" {
 		conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(pathB), pathB)))
 	} else if method == "POST" && pathA == "files" && pathB != "" {
-		filePath := dir + string(os.PathSeparator) + pathB + ".txt"
+		filePath := dir + string(os.PathSeparator) + pathB
 		if _, err := os.Stat(filePath); err == nil {
 			fmt.Println("File already exists:", filePath)
 			conn.Write([]byte("HTTP/1.1 405 Not Allowed\r\n\r\n"))
