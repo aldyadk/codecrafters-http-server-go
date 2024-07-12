@@ -57,7 +57,7 @@ func main() {
 		pathB = paths[2]
 	}
 
-	if method == "GET" && pathA == "/" {
+	if method == "GET" && path == "/" {
 		conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
 	} else if method == "GET" && pathA == "user-agent" {
 		if headers["User-Agent"] != "" {
