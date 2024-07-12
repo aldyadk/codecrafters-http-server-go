@@ -46,7 +46,7 @@ func main() {
 		conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
 	} else if method == "GET" && pathA == "echo" && pathB != "" {
 		fmt.Println(pathB)
-		conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Length: %d\r\n\r\n%s", len(pathB), pathB)))
+		conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(pathB), pathB)))
 	} else {
 		conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
 	}
