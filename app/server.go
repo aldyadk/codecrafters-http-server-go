@@ -33,7 +33,7 @@ func parsePath(path string) []string {
 
 }
 
-func handleRequest(conn net.Conn) {
+func handleConnection(conn net.Conn) {
 	req := make([]byte, 1024)
 	conn.Read(req)
 	request := string(req)
@@ -68,11 +68,12 @@ func main() {
 		fmt.Println("Failed to bind to port 4221")
 		os.Exit(1)
 	}
-
-	conn, err := l.Accept()
-	if err != nil {
-		fmt.Println("Error accepting connection: ", err.Error())
-		os.Exit(1)
+	for {
+		conn, err := l.Accept()
+		if err != nil {
+			fmt.Println("Error accepting connection: ", err.Error())
+			os.Exit(1)
+		}
+		go handleConnection(conn)
 	}
-	go handleRequest(conn)
 }
