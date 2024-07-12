@@ -65,6 +65,7 @@ func handleConnection(conn net.Conn) {
 			conn.Write([]byte("HTTP/1.1 405 Not Allowed\r\n\r\n"))
 			return
 		}
+		fmt.Sprintln(body)
 		content := []byte(body)
 		err := os.WriteFile(filePath, content, 0644)
 		if err != nil {
@@ -73,7 +74,6 @@ func handleConnection(conn net.Conn) {
 			return
 		}
 		conn.Write([]byte("HTTP/1.1 201 Created\r\n\r\n"))
-
 	} else if method == "GET" && pathA == "files" && pathB != "" {
 		filePath := dir + string(os.PathSeparator) + pathB
 		file, err := os.Open(filePath)
