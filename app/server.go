@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -56,13 +57,17 @@ func handleConnection(conn net.Conn) {
 	} else if method == "GET" && pathA == "echo" && pathB != "" {
 		conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(pathB), pathB)))
 	} else if method == "GET" && pathA == "files" && pathB != "" {
-		workingDir, err := os.Getwd()
-		fmt.Println(workingDir)
+		exePath, err := os.Executable()
 		if err != nil {
-			fmt.Println("Error getting working directory:", err)
+			fmt.Println("Error getting executable path:", err)
 			return
 		}
-		filePath := workingDir + string(os.PathSeparator) + pathB
+
+		// Get the directory of the executable
+		exeDir := filepath.Dir(exePath)
+
+		fmt.Println("Executable directory:", exeDir)
+		filePath := exeDir + string(os.PathSeparator) + pathB
 		file, err := os.Open(filePath)
 		if err != nil {
 			fmt.Println("Error opening file:", err)
