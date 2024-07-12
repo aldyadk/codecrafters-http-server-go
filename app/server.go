@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+var dir string
+
 func parseRequest(request string) (string, string, map[string]string, string) {
 	var method, path, body string
 	headers := make(map[string]string)
@@ -57,12 +59,6 @@ func handleConnection(conn net.Conn) {
 	} else if method == "GET" && pathA == "echo" && pathB != "" {
 		conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(pathB), pathB)))
 	} else if method == "GET" && pathA == "files" && pathB != "" {
-		directory := flag.String("directory", ".", "Directory to process")
-		flag.Parse()
-		var dir string
-		if *directory != "" {
-			dir = *directory
-		}
 		filePath := dir + string(os.PathSeparator) + pathB
 		file, err := os.Open(filePath)
 		if err != nil {
@@ -95,6 +91,11 @@ func main() {
 	if err != nil {
 		fmt.Println("Failed to bind to port 4221")
 		os.Exit(1)
+	}
+	directory := flag.String("directory", ".", "Directory to process")
+	flag.Parse()
+	if *directory != "" {
+		dir = *directory
 	}
 	for {
 		conn, err := l.Accept()
