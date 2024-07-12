@@ -71,6 +71,7 @@ func handleConnection(conn net.Conn) {
 		file, err := os.Open(filePath)
 		if err != nil {
 			fmt.Println("Error opening file:", err)
+			conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
 			return
 		}
 		defer file.Close()
