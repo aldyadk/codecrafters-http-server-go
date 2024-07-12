@@ -73,6 +73,7 @@ func handleConnection(conn net.Conn) {
 		}
 		defer file.Close()
 		conn.Write([]byte("HTTP/1.1 201 Created\r\n\r\n"))
+
 	} else if method == "GET" && pathA == "files" && pathB != "" {
 		filePath := dir + string(os.PathSeparator) + pathB
 		file, err := os.Open(filePath)
