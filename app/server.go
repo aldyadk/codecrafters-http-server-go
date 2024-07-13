@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
+	"compress/gzip"
 	"flag"
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"strings"
@@ -36,6 +39,23 @@ func parsePath(path string) []string {
 
 }
 
+func gzipCompress(data []byte) ([]byte, error) {
+	var buf bytes.Buffer
+	writer := gzip.NewWriter(&buf)
+	defer writer.Close()
+
+	_, err := writer.Write(data)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := writer.Close(); err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
 func handleConnection(conn net.Conn) {
 	req := make([]byte, 1024)
 	conn.Read(req)
@@ -58,8 +78,14 @@ func handleConnection(conn net.Conn) {
 			conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
 		}
 	} else if method == "GET" && pathA == "echo" && pathB != "" {
+		body := []byte(body)
+		compressedBody, err := gzipCompress(body)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		if headers["Accept-Encoding"] != "" && strings.Contains(headers["Accept-Encoding"], "gzip") {
-			conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: %s\r\n\r\n","gzip")))
+			conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: %s\r\nContent-Length: %d\r\n\r\n%s", "gzip", len(compressedBody), compressedBody)))
 		} else {
 			conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(pathB), pathB)))
 		}
