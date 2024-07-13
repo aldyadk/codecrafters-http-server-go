@@ -80,10 +80,10 @@ func handleConnection(conn net.Conn) {
 	} else if method == "GET" && pathA == "echo" && pathB != "" {
 		body := []byte(body)
 		compressedBody, err := gzipCompress(body)
-		fmt.Println(compressedBodytes)
 		if err != nil {
 			log.Fatal(err)
 		}
+		fmt.Println(compressedBody)
 
 		if headers["Accept-Encoding"] != "" && strings.Contains(headers["Accept-Encoding"], "gzip") {
 			conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: %s\r\nContent-Length: %d\r\n\r\n%s", "gzip", len(compressedBody), compressedBody)))
