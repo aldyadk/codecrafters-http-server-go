@@ -78,16 +78,15 @@ func handleConnection(conn net.Conn) {
 			conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
 		}
 	} else if method == "GET" && pathA == "echo" && pathB != "" {
-		body := []byte(body)
-		compressedBody, err := gzipCompress(body)
+		body := []byte(pathB)
+		body, err := gzipCompress(body)
 		if err != nil {
-			log.Fatal("ini fatal",err)
+			log.Fatal("ini fatal", err)
 		}
-		fmt.Println(compressedBody)
 
 		if headers["Accept-Encoding"] != "" && strings.Contains(headers["Accept-Encoding"], "gzip") {
-			conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: %s\r\nContent-Length: %d\r\n\r\n", "gzip", len(compressedBody))))
-			conn.Write([]byte(compressedBody))
+			conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: %s\r\nContent-Length: %d\r\n\r\n", "gzip", len(body))))
+			conn.Write(body)
 			conn.Close()
 		} else {
 			conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(pathB), pathB)))
