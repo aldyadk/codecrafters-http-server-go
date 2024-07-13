@@ -59,7 +59,7 @@ func handleConnection(conn net.Conn) {
 		}
 	} else if method == "GET" && pathA == "echo" && pathB != "" {
 		if headers["Accept-Encoding"] != "" && strings.Contains(headers["Accept-Encoding"], "gzip") {
-			conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: %s\r\n\r\n",headers["Accept-Encoding"])))
+			conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: %s\r\n\r\n","gzip")))
 		} else {
 			conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(pathB), pathB)))
 		}
