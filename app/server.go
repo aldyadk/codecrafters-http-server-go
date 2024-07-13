@@ -80,7 +80,7 @@ func handleConnection(conn net.Conn) {
 	} else if method == "GET" && pathA == "echo" && pathB != "" {
 		body := []byte(body)
 		compressedBody, err := gzipCompress(body)
-		fmt.Println(compressedBody)
+		fmt.Println(compressedBodytes)
 		if err != nil {
 			log.Fatal(err)
 		}
