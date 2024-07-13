@@ -39,21 +39,21 @@ func parsePath(path string) []string {
 
 }
 
-func gzipCompress(data []byte) (string, error) {
+func gzipCompress(data []byte) ([]byte, error) {
 	var buf bytes.Buffer
 	writer := gzip.NewWriter(&buf)
 	defer writer.Close()
 
 	_, err := writer.Write(data)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if err := writer.Close(); err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return buf.String(), nil
+	return buf.Bytes(), nil
 }
 
 func handleConnection(conn net.Conn) {
@@ -81,13 +81,13 @@ func handleConnection(conn net.Conn) {
 		body := []byte(body)
 		compressedBody, err := gzipCompress(body)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("ini fatal",err)
 		}
 		fmt.Println(compressedBody)
 
 		if headers["Accept-Encoding"] != "" && strings.Contains(headers["Accept-Encoding"], "gzip") {
 			conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: %s\r\nContent-Length: %d\r\n\r\n", "gzip", len(compressedBody))))
-			conn.Write([]byte(compressedBody))
+			conn.Write(compressedBody)
 			conn.Close()
 		} else {
 			conn.Write([]byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(pathB), pathB)))
